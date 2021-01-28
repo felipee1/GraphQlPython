@@ -1,7 +1,7 @@
 import graphene
 from fastapi import FastAPI
 from starlette.graphql import GraphQLApp
-from schemas.schemas import Query, Mutations
+from schemas.index import Query, Mutations
 from graphql.execution.executors.asyncio import AsyncioExecutor
 
 app = FastAPI()
