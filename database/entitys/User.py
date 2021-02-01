@@ -1,5 +1,5 @@
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from models import UserModel
+from database.models.UserModel import UserInfo
 from pydantic import BaseModel
 
 
@@ -7,18 +7,17 @@ class UserInfoBase(BaseModel):
     username: str
 
 
-class UserCreate(UserModel):
-    username: str
-    fullname: str
+class UserCreate(UserInfoBase):
+    fullName: str
+    email: str
     password: str
 
 
-class UserAuthenticate(UserModel):
-    username: str
+class UserAuthenticate(UserInfoBase):
     password: str
 
 
-class UserInformation(UserModel):
+class UserInformation(UserInfoBase):
     id: int
 
     class Config:

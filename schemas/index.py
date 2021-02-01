@@ -1,11 +1,13 @@
 import graphene
-from schemas.UserSchema import PersonQuery, CreateUser
-from schemas.AuthUser import AuthenUser
+from schemas.UserSchema import CreateUser, AuthenUser
+from schemas.ProductSchema import CreateProduct, ProductQuery
 
-class Query(PersonQuery,graphene.ObjectType):
+
+class Query(ProductQuery, graphene.ObjectType):
     pass
 
 
 class Mutations(graphene.ObjectType):
-    NewPerson = CreatePerson.Field()
+    Register = CreateUser.Field()
     Login = AuthenUser.Field()
+    NewProduct = CreateProduct.Field()
