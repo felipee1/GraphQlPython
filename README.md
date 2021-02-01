@@ -31,6 +31,8 @@ uvicorn index:app --reload
 
 -=Open on ip http://127.0.0.1:8000 =-
 
+-=examples to use o graphql playground=-
+
 mutation Login {
 Login(username: "opica", password: "123456") {
 token
