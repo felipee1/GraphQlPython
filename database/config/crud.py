@@ -11,7 +11,9 @@ def get_user_by_username(db: Session, username: str):
         UserModel.UserInfo.username == username).first()
     email = db.query(UserModel.UserInfo).filter(
         UserModel.UserInfo.email == username).first()
-    return user or email
+    byid = db.query(UserModel.UserInfo).filter(
+        UserModel.UserInfo.id == int(username)).first()
+    return user or email or byid
 
 
 def get_by_param(db: Session, param: any, field: any, data: any):
@@ -19,15 +21,10 @@ def get_by_param(db: Session, param: any, field: any, data: any):
 
 
 def create_any(db: Session, model: any):
-    print("tamo ai na ativinelson1")
     db_data = model
-    print("tamo ai na ativinelson2")
     db.add(db_data)
-    print("tamo ai na ativinelson3")
     db.commit()
-    print("tamo ai na ativinelson4")
     db.refresh(db_data)
-    print("tamo ai na ativinelson5")
     return db_data
 
 
@@ -35,7 +32,7 @@ def create_user(db: Session, user: User.UserCreate):
     hashed_password = bcrypt.hashpw(
         user.password.encode('utf-8'), bcrypt.gensalt()).decode()
     db_user = UserModel.UserInfo(
-        username=user.username, email=user.email, password=hashed_password, fullName=user.fullName)
+        username=user.username, email=user.email, password=hashed_password, fullName=user.fullName, admin=user.admin)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

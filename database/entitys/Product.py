@@ -11,6 +11,7 @@ class ProductCreate(ProductInfoBase):
     description: str
     code: str
     price: str
+    userId: int
 
 
 class ProductInformation(ProductInfoBase):

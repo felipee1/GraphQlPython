@@ -11,6 +11,7 @@ class UserCreate(UserInfoBase):
     fullName: str
     email: str
     password: str
+    admin: bool
 
 
 class UserAuthenticate(UserInfoBase):
@@ -34,5 +35,11 @@ class TokenData(BaseModel):
 
 
 class UserInfoSchema(SQLAlchemyObjectType):
+    class Meta:
+        model = UserInfo
+        only_fields = ("fullName", "email", "username")
+
+
+class UserInfoFullSchema(SQLAlchemyObjectType):
     class Meta:
         model = UserInfo

@@ -18,5 +18,5 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
 
 def decode_access_token(*, data: str):
     to_decode = data
-    decode_jwt = jwt.decode(to_decode,secret_key, algorithms=algorithm)
+    decode_jwt = jwt.decode(to_decode, secret_key, algorithms=algorithm)
     return decode_jwt

@@ -8,7 +8,7 @@ from utils.JWTRsesolver import decode_access_token
 from database.models import UserModel
 from database.config import crud
 from database.config.database import db_session
-from database.entitys.User import UserInfoSchema, UserCreate, UserAuthenticate
+from database.entitys.User import UserInfoSchema, UserCreate, UserAuthenticate, UserInfoFullSchema
 from datetime import timedelta
 import bcrypt
 
@@ -58,19 +58,27 @@ class CreateUser(Mutation):
 
     ok = graphene.Boolean()
     user = graphene.Field(lambda: UserInfoSchema)
+    token = graphene.String()
 
     def mutate(self, root, user_data=None):
         hashed_password = bcrypt.hashpw(
             user_data.password.encode('utf-8'), bcrypt.gensalt())
-        user = UserInfoSchema(username=user_data.username, email=user_data.email,
-                              password=hashed_password, fullName=user_data.fullName)
+        user = UserInfoFullSchema(username=user_data.username, email=user_data.email,
+                                  password=hashed_password, fullName=user_data.fullName, admin=False)
         ok = True
         db_user = crud.get_user_by_username(db, username=user_data.username)
+        db_user_mail = crud.get_user_by_username(db, username=user_data.email)
         if user_data.email.find("@") < 0:
             raise GraphQLError("Invalid E-mail")
         if db_user:
             raise GraphQLError("Username already registered")
+        if db_user_mail:
+            raise GraphQLError("E-mail already registered")
         user_info = UserCreate(username=user_data.username, email=user_data.email,
-                               password=user_data.password, fullName=user_data.fullName)
+                               password=user_data.password, fullName=user_data.fullName, admin=False)
         data = crud.create_user(db, user_info)
-        return CreateUser(user=data, ok=ok)
+        access_token_expires = timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user_data.username}, expires_delta=access_token_expires)
+        return CreateUser(user=data, ok=ok, token=access_token)

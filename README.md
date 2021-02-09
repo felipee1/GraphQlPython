@@ -52,10 +52,10 @@ price
 mutation register {
 Register(userData: {email: "opica@gmail.com", username: "opica", password: "123456", fullName: "o pica da silva sauro"}) {
 ok
+token
 user {
 email
 username
-password
 fullName
 }
 }
@@ -70,6 +70,18 @@ productName
 description
 code
 price
+}
+}
+}
+
+mutation registerADM($token: String!) {
+AdminRegister(userData: {email: "opicaadm@gmail.com", username: "opicaadm", password: "123456", fullName: "o pica da silva sauro", token:$token}) {
+ok
+token
+user {
+username
+fullName
+email
 }
 }
 }

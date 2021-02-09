@@ -58,21 +58,17 @@ class CreateProduct(Mutation):
         if user is None:
             raise GraphQLError("Invalid credentials")
         product = ProductInfoSchema(productName=product_data.productName, code=product_data.code,
-                                    price=product_data.price, description=product_data.description)
+                                    price=product_data.price, description=product_data.description, userId=user.id)
         ok = True
         db_product = crud.get_by_param(
             db, param=ProductModel.ProductInfo, field=ProductModel.ProductInfo.productName, data=product_data.productName)
-        print('toaqui')
         if db_product:
             raise GraphQLError("Product already registered")
 
-        print('toaqui2')
         product_info = ProductCreate(productName=product_data.productName, code=product_data.code,
-                                     price=product_data.price, description=product_data.description)
+                                     price=product_data.price, description=product_data.description, userId=user.id)
 
-        print('toaqui3')
         data = crud.create_any(db, ProductModel.ProductInfo(productName=product_info.productName, code=product_info.code,
-                                                            price=product_info.price, description=product_info.description))
+                                                            price=product_info.price, description=product_info.description, userId=user.id))
 
-        print('toaqui4')
         return CreateProduct(product=data, ok=ok)

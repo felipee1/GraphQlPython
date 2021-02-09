@@ -24,11 +24,13 @@ def upgrade():
         sa.Column('username', sa.String(100), nullable=False),
         sa.Column('password', sa.String(300), nullable=False),
         sa.Column('email', sa.String(300), nullable=False),
+        sa.Column('admin', sa.Boolean),
     )
     op.create_table(
         'product_info',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('productName', sa.String(300), nullable=False),
+        sa.Column('userId', sa.Integer, nullable=False),
         sa.Column('code', sa.String(100), nullable=False),
         sa.Column('description', sa.String(1000)),
         sa.Column('price', sa.Float, nullable=False),
