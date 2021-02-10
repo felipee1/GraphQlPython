@@ -11,6 +11,7 @@ from jwt import PyJWTError
 from database.config.database import db_session
 from database.entitys.Product import ProductInfoSchema, ProductInfoBase, ProductCreate, ProductInformation
 from database.entitys.User import TokenData
+from database.models.ProductModel import ProductInfo
 from datetime import timedelta
 import bcrypt
 
@@ -19,10 +20,20 @@ db = db_session.session_factory()
 
 class ProductQuery(graphene.ObjectType):
 
-    all_products = graphene.List(ProductInfoSchema)
+    all_products = graphene.List(
+        ProductInfoSchema, searchByUser=graphene.Int(), search=graphene.String())
 
-    def resolve_all_products(self, info):
+    def resolve_all_products(self, info, searchByUser=None, search=None):
         query = ProductInfoSchema.get_query(info)  # SQLAlchemy query
+        if search:
+            query = query.filter(
+                (ProductInfo.productName.contains(search)) |
+                (ProductInfo.code.contains(search)) |
+                (ProductInfo.description.contains(search))
+            )
+        if searchByUser:
+            query = query.filter(
+                ProductInfo.userId == searchByUser)
         return query.all()
 
 
