@@ -28,6 +28,14 @@ def create_any(db: Session, model: any):
     return db_data
 
 
+def update_any(db: Session, model: any):
+    db_data = model
+    db.add(db_data)
+    db.commit()
+    db.refresh(db_data)
+    return db_data
+
+
 def create_user(db: Session, user: User.UserCreate):
     hashed_password = bcrypt.hashpw(
         user.password.encode('utf-8'), bcrypt.gensalt()).decode()

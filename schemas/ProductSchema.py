@@ -25,13 +25,13 @@ class ProductQuery(graphene.ObjectType):
 
     def resolve_all_products(self, info, searchByUser=None, search=None):
         query = ProductInfoSchema.get_query(info)  # SQLAlchemy query
-        if search:
+        if search is not None:
             query = query.filter(
                 (ProductInfo.productName.contains(search)) |
                 (ProductInfo.code.contains(search)) |
                 (ProductInfo.description.contains(search))
             )
-        if searchByUser:
+        if searchByUser is not None:
             query = query.filter(
                 ProductInfo.userId == searchByUser)
         return query.all()
@@ -72,7 +72,7 @@ class CreateProduct(Mutation):
                                     price=product_data.price, description=product_data.description, userId=user.id)
         ok = True
         db_product = crud.get_by_param(
-            db, param=ProductModel.ProductInfo, field=ProductModel.ProductInfo.productName, data=product_data.productName)
+            db, param=ProductModel.ProductInfo, field=ProductModel.ProductInfo.code, data=product_data.code)
         if db_product:
             raise GraphQLError("Product already registered")
 
@@ -81,5 +81,44 @@ class CreateProduct(Mutation):
 
         data = crud.create_any(db, ProductModel.ProductInfo(productName=product_info.productName, code=product_info.code,
                                                             price=product_info.price, description=product_info.description, userId=user.id))
+
+        return CreateProduct(product=data, ok=ok)
+
+
+class UpdateProduct(Mutation):
+    class Arguments:
+        product_data = ProductInput(required=True)
+        id = graphene.Int()
+
+    ok = graphene.Boolean()
+    product = graphene.Field(lambda: ProductInfoSchema)
+
+    def mutate(self, root, product_data=None, id=None):
+        try:
+            payload = decode_access_token(data=product_data.token)
+            username: str = payload.get("sub")
+
+            if username is None:
+                raise GraphQLError("Invalid credentials")
+            token_data = TokenData(username=username)
+
+        except PyJWTError:
+            raise GraphQLError("Invalid credentials")
+
+        user = crud.get_user_by_username(db, username=token_data.username)
+        if user is None:
+            raise GraphQLError("Invalid credentials")
+        ok = True
+        db_product = crud.get_by_param(
+            db, param=ProductModel.ProductInfo, field=ProductModel.ProductInfo.id, data=id)
+        db_product.productName = product_data.productName
+        db_product.code = product_data.code
+        db_product.price = product_data.price
+        db_product.description = product_data.description
+
+        if db_product is None:
+            raise GraphQLError("Product not registered")
+
+        data = crud.update_any(db, db_product)
 
         return CreateProduct(product=data, ok=ok)
